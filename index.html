@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FPFF — Festiwal Polskich Filmów Fabularnych</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Gotu&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --black:#0a0a0a;
+    --near-black:#151515;
+    --white:#ffffff;
+    --paper:#f7f7f5;
+    --line:#dcdcd8;
+    --gray:#8a8a86;
+    --gray-dark:#4a4a47;
+    --display: 'Gotu', sans-serif;
+    --serif: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    --mono: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+
+  body{
+    background:var(--white);
+    color:var(--black);
+    font-family:var(--serif);
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+
+  /* ================= KEYFRAMES ================= */
+  @keyframes fadeDown{
+    from{opacity:0; transform:translateY(-14px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+  @keyframes logoIn{
+    from{opacity:0; transform:translateY(10px) scale(0.96);}
+    to{opacity:1; transform:translateY(0) scale(1);}
+  }
+  @keyframes stripScroll{
+    from{background-position:0 center;}
+    to{background-position:-680px center;}
+  }
+  @keyframes railScroll{
+    from{background-position:0 center;}
+    to{background-position:-680px center;}
+  }
+  @keyframes shine{
+    0%{background-position:200% 0;}
+    100%{background-position:-200% 0;}
+  }
+  @keyframes marqueeScroll{
+    from{transform:translateX(0);}
+    to{transform:translateX(-50%);}
+  }
+  @keyframes blink{
+    0%,100%{opacity:1;}
+    50%{opacity:0.2;}
+  }
+
+  a{color:inherit;text-decoration:none;}
+  img{display:block;max-width:100%;}
+  button{font:inherit;background:none;border:none;cursor:pointer;color:inherit;}
+
+  ::selection{background:var(--black);color:var(--white);}
+
+  :focus-visible{
+    outline:2px solid var(--black);
+    outline-offset:3px;
+  }
+
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:0.72rem;
+    letter-spacing:0.28em;
+    text-transform:uppercase;
+    color:var(--gray-dark);
+  }
+
+  /* ================= TOP BAR ================= */
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:1.6rem 2.4rem 0.4rem;
+    animation:fadeDown 0.7s ease both;
+  }
+
+  .topbar-right{
+    display:flex;
+    align-items:center;
+    gap:1rem;
+    position:relative;
+  }
+
+  .icon-grid{
+    padding:0.5rem;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:opacity 0.2s ease, transform 0.35s cubic-bezier(.4,0,.2,1);
+  }
+  .icon-grid:hover{opacity:0.65; transform:rotate(90deg);}
+  .icon-grid.is-open{transform:rotate(135deg);}
+  .icon-grid img{
+    width:28px;
+    height:auto;
+    display:block;
+    transition:transform 0.3s ease;
+  }
+
+  .lang-toggle{
+    font-family:var(--mono);
+    font-size:0.8rem;
+    letter-spacing:0.08em;
+    color:var(--gray);
+  }
+  .lang-toggle b{color:var(--black); font-weight:600;}
+
+  .brand-row{
+    display:flex;
+    justify-content:center;
+    padding:0.4rem 1.5rem 1.4rem;
+  }
+  .brand-logo{
+    width:clamp(260px, 30vw, 520px);
+    height:auto;
+    animation:logoIn 0.9s cubic-bezier(.2,.8,.2,1) both;
+    animation-delay:0.1s;
+  }
+
+  /* Nav dropdown menu, opened from the top-right burger button */
+  nav.mainnav{
+    position:absolute;
+    top:calc(100% + 0.8rem);
+    right:0;
+    display:flex;
+    flex-direction:column;
+    gap:0.2rem;
+    background:var(--white);
+    border:1px solid var(--line);
+    box-shadow:0 18px 40px rgba(0,0,0,0.14);
+    border-radius:4px;
+    padding:0.6rem;
+    min-width:220px;
+    opacity:0;
+    visibility:hidden;
+    transform:translateY(-6px) scale(0.98);
+    transform-origin:top right;
+    transition:opacity 0.25s cubic-bezier(.4,0,.2,1), transform 0.25s cubic-bezier(.4,0,.2,1), visibility 0.25s;
+    z-index:50;
+  }
+  nav.mainnav.open{
+    opacity:1;
+    visibility:visible;
+    transform:translateY(0) scale(1);
+  }
+  nav.mainnav a{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:0.4rem;
+    font-family:var(--mono);
+    font-size:0.92rem;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    font-weight:500;
+    color:var(--black);
+    padding:0.7rem 0.8rem;
+    border-radius:3px;
+    transition:background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    opacity:0;
+    transform:translateX(8px);
+  }
+  nav.mainnav.open a{
+    opacity:1;
+    transform:translateX(0);
+    transition:background-color 0.2s ease, color 0.2s ease, opacity 0.35s ease, transform 0.35s ease;
+    transition-delay:calc(var(--i, 0) * 0.05s);
+  }
+  nav.mainnav a:hover{transform:translateX(3px);}
+  nav.mainnav a .chev{color:var(--gray); font-size:0.85em; transition:transform 0.2s ease;}
+  nav.mainnav a:hover{background:var(--paper); color:var(--gray-dark);}
+  nav.mainnav a:hover .chev{transform:translateY(2px);}
+
+  /* ================= POSTERY KONKURSOWE ================= */
+  .posters{
+    max-width:1180px;
+    margin:0 auto;
+    padding:0.5rem 2rem 4.5rem;
+  }
+  .posters-grid{
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:1.5rem;
+  }
+  .poster-item{
+    position:relative;
+    border-radius:4px;
+    overflow:hidden;
+    aspect-ratio:4/5;
+    background:var(--black);
+    box-shadow:0 14px 34px rgba(0,0,0,0.16);
+    transition:transform 0.4s cubic-bezier(.2,.7,.2,1), box-shadow 0.4s cubic-bezier(.2,.7,.2,1);
+  }
+  .poster-item:hover{transform:translateY(-6px); box-shadow:0 26px 54px rgba(0,0,0,0.22);}
+  .poster-item img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    transition:transform 0.6s cubic-bezier(.2,.7,.2,1);
+  }
+  .poster-item:hover img{transform:scale(1.04);}
+
+  @media (max-width: 780px){
+    .posters-grid{grid-template-columns:1fr; gap:1.2rem;}
+    .posters{padding:0.5rem 1.2rem 3rem;}
+  }
+
+  /* ================= INTRO TEXT ================= */
+  .intro{
+    max-width:900px;
+    margin:0 auto;
+    padding:3rem 2rem 5rem;
+  }
+  .intro p{
+    font-size:1.08rem;
+    color:var(--near-black);
+    margin-bottom:1.25rem;
+  }
+  .intro p strong{color:var(--black); font-weight:700;}
+
+  .stat-row{
+    display:flex;
+    gap:2.6rem;
+    margin-top:2.4rem;
+    flex-wrap:wrap;
+  }
+  .stat{border-left:2px solid var(--black); padding-left:0.9rem; transition:transform 0.3s ease;}
+  .stat:hover{transform:translateX(3px);}
+  .stat .num{
+    font-family:var(--display);
+    font-weight:800;
+    letter-spacing:-0.01em;
+    font-size:2.2rem;
+    color:var(--black);
+    display:block;
+    line-height:1;
+  }
+  .stat .lbl{
+    font-family:var(--mono);
+    font-size:0.68rem;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--gray-dark);
+  }
+
+  /* ================= FILMSTRIP DIVIDER ================= */
+  .strip-divider{
+    width:100%;
+    height:56px;
+    background-image:url('klisza.png');
+    background-repeat:repeat-x;
+    background-size:auto 100%;
+    background-position:center;
+    animation:stripScroll 18s linear infinite;
+  }
+  .strip-divider.light{filter:invert(0);}
+
+  /* ================= TIMELINE ================= */
+  .timeline-section{
+    background:var(--black);
+    color:var(--white);
+    padding:6.5rem 0 7.5rem;
+    position:relative;
+  }
+  .timeline-head{
+    text-align:center;
+    max-width:640px;
+    margin:0 auto 4.5rem;
+    padding:0 1.5rem;
+  }
+  .timeline-head .eyebrow{color:var(--gray);}
+  .timeline-head h2{
+    font-family:var(--display);
+    font-weight:800;
+    letter-spacing:-0.01em;
+    font-size:clamp(2rem, 4vw, 3rem);
+    color:var(--white);
+    margin-top:0.6rem;
+  }
+  .timeline-head p{color:var(--gray); font-size:0.98rem;}
+
+  .rail-wrap{
+    position:relative;
+    max-width:1300px;
+    margin:0 auto;
+    padding:0 2rem;
+  }
+  .rail{
+    position:relative;
+    height:120px;
+    background-image:url('klisza.png');
+    background-repeat:repeat-x;
+    background-size:auto 100%;
+    background-position:center;
+    filter:invert(1);
+    animation:railScroll 22s linear infinite;
+  }
+  .frames{
+    display:grid;
+    grid-template-columns:repeat(5, 1fr);
+    max-width:1300px;
+    margin:-64px auto 0;
+    padding:0 2rem;
+    position:relative;
+    z-index:2;
+  }
+  .frame{text-align:center; padding:0 1rem;}
+  .frame .year{
+    font-family:var(--display);
+    font-weight:800;
+    font-size:1.9rem;
+    color:var(--white);
+    letter-spacing:0;
+    display:inline-block;
+    transition:transform 0.3s cubic-bezier(.2,.7,.2,1), color 0.3s ease;
+  }
+  .frame:hover .year{transform:translateY(-4px); color:var(--gray);}
+  .frame .cap{
+    font-size:0.86rem;
+    color:var(--gray);
+    margin-top:0.5rem;
+    max-width:22ch;
+    margin-inline:auto;
+  }
+
+  /* ================= AWARD ================= */
+  .award{
+    background:var(--near-black);
+    color:var(--white);
+    padding:7rem 3rem;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+    border-top:1px solid rgba(255,255,255,0.12);
+    border-bottom:1px solid rgba(255,255,255,0.12);
+  }
+  .award .eyebrow{display:block; margin-bottom:1rem; color:var(--gray);}
+  .award h2{
+    font-family:var(--display);
+    font-weight:800;
+    font-size:clamp(3.2rem, 11vw, 8.5rem);
+    line-height:0.9;
+    color:var(--white);
+    letter-spacing:-0.02em;
+  }
+  .award p{max-width:52ch; margin:1.6rem auto 0; color:var(--gray); font-size:1.02rem;}
+
+  /* ================= INFO CARDS ================= */
+  .info{background:var(--paper); color:var(--black); padding:7rem 3rem;}
+  .info-inner{max-width:1180px; margin:0 auto;}
+  .info-inner > .eyebrow{color:var(--gray-dark);}
+  .info-inner h2{
+    font-family:var(--display);
+    font-weight:800;
+    letter-spacing:-0.01em;
+    font-size:clamp(2.2rem, 4vw, 3.4rem);
+    margin:0.6rem 0 3rem;
+  }
+  .cards{display:grid; grid-template-columns:repeat(3, 1fr); gap:1.5rem;}
+  .card{
+    background:#fff;
+    border:1px solid var(--line);
+    padding:2.2rem 1.8rem;
+    border-radius:3px;
+    transition:transform 0.35s cubic-bezier(.2,.7,.2,1), box-shadow 0.35s cubic-bezier(.2,.7,.2,1), border-color 0.35s ease;
+  }
+  .card:hover{transform:translateY(-8px); box-shadow:0 20px 44px rgba(0,0,0,0.12); border-color:var(--gray);}
+  .card .tag{
+    font-family:var(--mono);
+    font-size:0.68rem;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--gray-dark);
+  }
+  .card h3{font-family:var(--display); font-weight:700; font-size:1.6rem; margin:0.6rem 0 0.7rem; letter-spacing:-0.01em;}
+  .card p{font-size:0.95rem; color:var(--gray-dark);}
+
+  /* ================= MERCH ================= */
+  .merch{background:var(--paper); color:var(--black); padding:7rem 3rem;}
+  .merch-inner{max-width:1180px; margin:0 auto;}
+  .merch-inner > .eyebrow{color:var(--gray-dark);}
+  .merch-inner h2{
+    font-family:var(--display);
+    font-weight:800;
+    letter-spacing:-0.01em;
+    font-size:clamp(2.2rem, 4vw, 3.4rem);
+    margin:0.6rem 0 1rem;
+  }
+  .merch-inner > p{max-width:60ch; color:var(--gray-dark); font-size:1rem; margin-bottom:3rem;}
+  .merch-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:1.5rem;
+  }
+  .merch-item{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:3px;
+    overflow:hidden;
+    transition:transform 0.35s cubic-bezier(.2,.7,.2,1), box-shadow 0.35s cubic-bezier(.2,.7,.2,1), border-color 0.35s ease;
+  }
+  .merch-item:hover{transform:translateY(-8px); box-shadow:0 20px 44px rgba(0,0,0,0.12); border-color:var(--gray);}
+  .merch-item .merch-photo{
+    width:100%;
+    aspect-ratio:1/1;
+    background:var(--paper);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+  .merch-item .merch-photo img{width:100%; height:100%; object-fit:cover; transition:transform 0.5s cubic-bezier(.2,.7,.2,1);}
+  .merch-item:hover .merch-photo img{transform:scale(1.06);}
+  .merch-item .merch-info{padding:1.4rem 1.6rem 1.7rem;}
+  .merch-item .merch-info h3{font-family:var(--display); font-weight:700; font-size:1.2rem; margin-bottom:0.3rem; letter-spacing:-0.01em;}
+  .merch-item .merch-info span{font-family:var(--mono); font-size:0.78rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--gray-dark);}
+
+  @media (max-width: 780px){
+    .merch-grid{grid-template-columns:repeat(2, 1fr);}
+  }
+
+  /* ================= FOOTER ================= */
+  footer{background:var(--black); color:var(--gray); padding:4rem 3rem 2.4rem; border-top:1px solid rgba(255,255,255,0.12);}
+  .footer-grid{
+    max-width:1180px; margin:0 auto;
+    display:flex; justify-content:space-between; align-items:flex-start;
+    flex-wrap:wrap; gap:2.5rem;
+  }
+  .footer-logo{height:30px; filter:invert(1); margin-bottom:1rem;}
+  .footer-col h4{
+    font-family:var(--mono); font-size:0.7rem; letter-spacing:0.14em;
+    text-transform:uppercase; color:var(--white); margin-bottom:0.9rem;
+  }
+  .footer-col a, .footer-col p{display:block; font-size:0.9rem; color:var(--gray); margin-bottom:0.5rem;}
+  .footer-col a{position:relative; width:fit-content; transition:color 0.25s ease;}
+  .footer-col a::after{
+    content:'';
+    position:absolute; left:0; bottom:-2px;
+    width:0; height:1px; background:var(--white);
+    transition:width 0.3s cubic-bezier(.2,.7,.2,1);
+  }
+  .footer-col a:hover{color:var(--white);}
+  .footer-col a:hover::after{width:100%;}
+  .footer-bottom{
+    max-width:1180px; margin:3rem auto 0; padding-top:1.6rem;
+    border-top:1px solid rgba(255,255,255,0.1);
+    font-family:var(--mono); font-size:0.72rem; letter-spacing:0.05em; color:var(--gray-dark);
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:0.8rem;
+  }
+
+  /* ================= REVEAL ================= */
+  .reveal{
+    opacity:0;
+    transform:translateY(28px) scale(0.985);
+    transition:opacity 0.8s cubic-bezier(.2,.7,.2,1), transform 0.8s cubic-bezier(.2,.7,.2,1);
+    transition-delay:calc(var(--d, 0) * 0.09s);
+  }
+  .reveal.in{opacity:1; transform:translateY(0) scale(1);}
+
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    .strip-divider,.rail{animation:none !important;}
+    .reveal{transition:none !important; opacity:1 !important; transform:none !important;}
+  }
+
+  /* ================= RESPONSIVE ================= */
+  @media (max-width: 780px){
+    .topbar{padding:1.2rem 1.2rem 0.2rem;}
+    .brand-logo{width:min(78vw, 340px);}
+    nav.mainnav{min-width:200px;}
+    .rail{height:80px;}
+    .cards{grid-template-columns:1fr;}
+    .award h2{font-size:clamp(2.6rem, 18vw, 5rem);}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="lang-toggle"><b>PL</b> | EN</div>
+  <div class="topbar-right">
+    <button class="icon-grid" id="burger" aria-label="Menu" aria-haspopup="true" aria-expanded="false"><img src="menu-icon.png" alt=""></button>
+    <nav class="mainnav" id="navLinks">
+      <a href="#informacje" style="--i:0">Aktualności</a>
+      <a href="#informacje" style="--i:1">Informacje <span class="chev">⌄</span></a>
+      <a href="#archiwum" style="--i:2">Archiwum <span class="chev">⌄</span></a>
+      <a href="#merch" style="--i:3">Merch <span class="chev">⌄</span></a>
+    </nav>
+  </div>
+</header>
+
+<div class="brand-row">
+  <img src="LOGO.png" alt="FPFF — Festiwal Polskich Filmów Fabularnych" class="brand-logo">
+</div>
+
+<div class="posters">
+  <div class="posters-grid">
+    <div class="poster-item reveal">
+      <img src="konkurs-glowny.jpg" alt="Konkurs Główny — FPFF">
+    </div>
+    <div class="poster-item reveal">
+      <img src="konkurs-filmow-krotkometrazowych.jpg" alt="Konkurs Filmów Krótkometrażowych — FPFF">
+    </div>
+  </div>
+</div>
+
+<div class="intro" id="start">
+  <p>Festiwal Polskich Filmów Fabularnych to najważniejszy przegląd polskiego kina — konkursowe i branżowe wydarzenie, które od pół wieku pełni funkcję sceny premier, selekcji i nagród dla rodzimej kinematografii. To nie zwykły event, lecz instytucja kultury.</p>
+  <p>Swój początek wziął <strong>7 września 1974 roku</strong> w gdańskim kinie Leningrad, z inicjatywy środowisk filmowych — Dyskusyjnego Klubu Filmowego „Żak" oraz Stowarzyszenia Filmowców Polskich. W latach 1974–1986 odbywał się w Gdańsku, później na stałe przeniósł się do Gdyni, gdzie co roku, we wrześniu, zbiera twórców, krytyków i widzów. FPFF jest jednym z najstarszych festiwali filmowych w Europie promujących rodzimą kinematografię, a jego główną nagrodą są <strong>Złote Lwy</strong>.</p>
+  <p>Obecnie organizatorami są między innymi Ministerstwo Kultury, Polski Instytut Sztuki Filmowej oraz Miasto Gdynia. W 2025 roku odbyła się jubileuszowa 50. edycja festiwalu, której historię przypomniano między innymi na wystawie „Na fali czasu".</p>
+  <div class="stat-row">
+    <div class="stat"><span class="num">50+</span><span class="lbl">edycji festiwalu</span></div>
+    <div class="stat"><span class="num">1974</span><span class="lbl">rok powstania</span></div>
+    <div class="stat"><span class="num">6</span><span class="lbl">dni pokazów i debat</span></div>
+  </div>
+</div>
+
+<div class="strip-divider" aria-hidden="true"></div>
+
+<section class="timeline-section" id="archiwum">
+  <div class="timeline-head reveal">
+    <span class="eyebrow">Klisza historii</span>
+    <h2>Pół wieku na taśmie</h2>
+    <p>Najważniejsze kadry z historii festiwalu — od pierwszej projekcji po dzisiejsze jubileusze.</p>
+  </div>
+  <div class="rail-wrap">
+    <div class="rail" aria-hidden="true"></div>
+    <div class="frames">
+      <div class="frame reveal"><div class="year">1974</div><div class="cap">Pierwsza edycja w kinie Leningrad, Gdańsk</div></div>
+      <div class="frame reveal"><div class="year">1987</div><div class="cap">Przeniesienie festiwalu do Gdyni</div></div>
+      <div class="frame reveal"><div class="year">—</div><div class="cap">Ustanowienie nagrody głównej „Złote Lwy"</div></div>
+      <div class="frame reveal"><div class="year">2025</div><div class="cap">Jubileusz 50-lecia i wystawa „Na fali czasu"</div></div>
+      <div class="frame reveal"><div class="year">2026</div><div class="cap">Kolejna edycja czeka na Twój udział</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="strip-divider light" aria-hidden="true"></div>
+<section class="info" id="informacje">
+  <div class="info-inner">
+    <span class="eyebrow">Informacje praktyczne</span>
+    <h2 class="reveal">Zaplanuj swój pobyt</h2>
+    <div class="cards">
+      <div class="card reveal">
+        <span class="tag">Termin</span>
+        <h3>Wrzesień, co roku</h3>
+        <p>Festiwal odbywa się cyklicznie we wrześniu — dokładne daty kolejnej edycji ogłaszane są w zakładce Aktualności.</p>
+      </div>
+      <div class="card reveal">
+        <span class="tag">Miejsce</span>
+        <h3>Gdynia</h3>
+        <p>Pokazy konkursowe, spotkania branżowe i wydarzenia towarzyszące odbywają się w kinach i teatrach centrum miasta.</p>
+      </div>
+      <div class="card reveal">
+        <span class="tag">Udział</span>
+        <h3>Bilety i akredytacje</h3>
+        <p>Wejściówki na pokazy oraz akredytacje branżowe dostępne są przed rozpoczęciem festiwalu — szczegóły w zakładce Informacje.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="merch" id="merch">
+  <div class="merch-inner">
+    <span class="eyebrow">Sklep festiwalowy</span>
+    <h2 class="reveal">Merch FPFF</h2>
+    <p class="reveal">Zabierz kawałek festiwalu ze sobą — limitowana kolekcja gadżetów z logo FPFF.</p>
+    <div class="merch-grid">
+      <div class="merch-item reveal">
+        <div class="merch-photo"><img src="merch-czapka-czarna.jpg" alt="Czapka FPFF czarna"></div>
+        <div class="merch-info"><h3>Czapka — czarna</h3><span>Merch</span></div>
+      </div>
+      <div class="merch-item reveal">
+        <div class="merch-photo"><img src="merch-czapka-bezowa.jpg" alt="Czapka FPFF beżowa"></div>
+        <div class="merch-info"><h3>Czapka — beżowa</h3><span>Merch</span></div>
+      </div>
+      <div class="merch-item reveal">
+        <div class="merch-photo"><img src="merch-dlugopis.jpg" alt="Długopis FPFF"></div>
+        <div class="merch-info"><h3>Długopis</h3><span>Merch</span></div>
+      </div>
+      <div class="merch-item reveal">
+        <div class="merch-photo"><img src="merch-torba.jpg" alt="Torba FPFF"></div>
+        <div class="merch-info"><h3>Torba</h3><span>Merch</span></div>
+      </div>
+      <div class="merch-item reveal">
+        <div class="merch-photo"><img src="merch-koszulka-czarna.jpg" alt="Koszulka FPFF czarna"></div>
+        <div class="merch-info"><h3>Koszulka — czarna</h3><span>Merch</span></div>
+      </div>
+      <div class="merch-item reveal">
+        <div class="merch-photo"><img src="merch-koszulka-biala.jpg" alt="Koszulka FPFF biała"></div>
+        <div class="merch-info"><h3>Koszulka — biała</h3><span>Merch</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="strip-divider" aria-hidden="true"></div>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-col">
+      <img src="LOGO.png" alt="FPFF" class="footer-logo">
+      <p>Festiwal Polskich Filmów Fabularnych<br>Gdynia, Polska</p>
+    </div>
+    <div class="footer-col">
+      <h4>Nawigacja</h4>
+      <a href="#start">Aktualności</a>
+      <a href="#informacje">Informacje</a>
+      <a href="#archiwum">Archiwum</a>
+      <a href="#merch">Merch</a>
+    </div>
+    <div class="footer-col">
+      <h4>Organizatorzy</h4>
+      <p>Ministerstwo Kultury</p>
+      <p>Polski Instytut Sztuki Filmowej</p>
+      <p>Miasto Gdynia</p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© FPFF — projekt studencki</span>
+    <span>Złote Lwy od 1974</span>
+  </div>
+</footer>
+
+<script>
+  // Nav dropdown toggle
+  const burger = document.getElementById('burger');
+  const navLinks = document.getElementById('navLinks');
+
+  function closeMenu(){
+    navLinks.classList.remove('open');
+    burger.classList.remove('is-open');
+    burger.setAttribute('aria-expanded', 'false');
+  }
+  function toggleMenu(e){
+    e.stopPropagation();
+    const isOpen = navLinks.classList.toggle('open');
+    burger.classList.toggle('is-open', isOpen);
+    burger.setAttribute('aria-expanded', String(isOpen));
+  }
+
+  burger.addEventListener('click', toggleMenu);
+
+  // Close when clicking outside or selecting a link
+  document.addEventListener('click', (e) => {
+    if (!navLinks.contains(e.target) && e.target !== burger) closeMenu();
+  });
+  navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
+
+  // Stagger reveal delays within each shared parent group
+  const groupSelectors = ['.frames', '.cards', '.merch-grid', '.posters-grid'];
+  groupSelectors.forEach(sel => {
+    document.querySelectorAll(sel).forEach(group => {
+      Array.from(group.children).forEach((child, i) => {
+        if (child.classList.contains('reveal')) child.style.setProperty('--d', i);
+      });
+    });
+  });
+
+  // Scroll reveal
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // Count-up animation for stat numbers
+  const statNums = document.querySelectorAll('.stat .num');
+  const countIo = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const el = entry.target;
+      countIo.unobserve(el);
+      const raw = el.textContent.trim();
+      const match = raw.match(/^(\d+)(.*)$/);
+      if (!match) return;
+      const target = parseInt(match[1], 10);
+      const suffix = match[2] || '';
+      const duration = 1100;
+      const start = performance.now();
+      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (prefersReduced) { el.textContent = target + suffix; return; }
+      function tick(now){
+        const progress = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.round(eased * target) + suffix;
+        if (progress < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    });
+  }, { threshold: 0.5 });
+  statNums.forEach(el => countIo.observe(el));
+</script>
+
+</body>
+</html>
